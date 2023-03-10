@@ -203,6 +203,8 @@ func AppDirDeploy(path string) {
 	// PulseAudio
 	handlePulseAudio(appdir)
 
+	handleWebkitgtk(appdir)
+
 	// ld-linux interpreter
 	ldLinux, err := deployInterpreter(appdir)
 
@@ -625,6 +627,25 @@ func handlePulseAudio(appdir helpers.AppDir) {
 				os.Exit(1)
 			} else {
 				log.Println("Bundling dependencies of pulseaudio directory...")
+				determineELFsInDirTree(appdir, locs[0])
+			}
+
+			break
+		}
+	}
+}
+
+func handleWebkitgtk(appdir helpers.AppDir) {
+	// TODO: What about the `/usr/lib/pulse-*` directory?
+	for _, lib := range allELFs {
+		if strings.Contains(filepath.Base(lib), "webkit2gtk") {
+			log.Println("Bundling webkit2gtk directory (for <tbd>)...")
+			locs, err := findWithPrefixInLibraryLocations("webkit2gtk")
+			if err != nil {
+				log.Println("Could not find webkit2gtk directory")
+				os.Exit(1)
+			} else {
+				log.Println("Bundling dependencies of webkit2gtk directory...")
 				determineELFsInDirTree(appdir, locs[0])
 			}
 
